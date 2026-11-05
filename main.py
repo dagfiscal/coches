@@ -84,8 +84,7 @@ class App:
                    )
             self.btn_eliminar.pack(pady=10)   
             Button(self.ventana,text="Regresar",command=self.menu_acciones).pack(pady=5)
-        
-    
+         
     def modificar_view(self):
        self.borrarPantalla()
        Label(self.ventana,text="...Ingresar el ID del Coche a modificar...").pack(pady=10)
@@ -135,9 +134,7 @@ class App:
      
     def cambiar_estado_eliminar(self,estado):
         if estado:
-           self.btn_eliminar.config(state="normal") 
-       
-           
+           self.btn_eliminar.config(state="normal")  
         else:
            self.btn_eliminar.config(state="disabled")
      
