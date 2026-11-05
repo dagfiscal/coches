@@ -73,11 +73,19 @@ class App:
             self.id=Entry(self.ventana)
             self.id.focus()
             self.id.pack(pady=5)
-    
             
-            Button(self.ventana,text="Eliminar",command=self.eliminar_controller).pack(pady=10)
+            self.btn_buscar=Button(self.ventana,text="Buscar",command=self.buscar_controller)
+            self.btn_buscar.pack(pady=10)
+            self.btn_eliminar = Button(
+                   self.ventana,
+                   text="Eliminar",
+                   state="disabled",
+                   command=lambda:{self.eliminar_controller(),self.eliminar_view()}
+                   )
+            self.btn_eliminar.pack(pady=10)   
             Button(self.ventana,text="Regresar",command=self.menu_acciones).pack(pady=5)
         
+    
     def modificar_view(self):
        self.borrarPantalla()
        Label(self.ventana,text="...Ingresar el ID del Coche a modificar...").pack(pady=10)
@@ -111,7 +119,7 @@ class App:
        self.asientos=Entry(self.ventana)
        self.asientos.pack(pady=5)
         
-       Button(self.ventana,text="Guardar",command=self.modificar_controller).pack(pady=10)
+       Button(self.ventana,text="Guardar",command=lambda: {self.modificar_controller(),self.modificar_view()}).pack(pady=10)
        Button(self.ventana,text="Regresar",command=self.menu_acciones).pack(pady=5)
        
     def consultar_view(self):
@@ -124,8 +132,22 @@ class App:
         Label(self.ventana,text=f"{filas}").pack(pady=5)
         Label(self.ventana,text=f"-"*100).pack(pady=5)
         Button(self.ventana,text="Regresar",command=self.menu_acciones).pack(pady=5)
+     
+    def cambiar_estado_eliminar(self,estado):
+        if estado:
+           self.btn_eliminar.config(state="normal") 
+       
+           
+        else:
+           self.btn_eliminar.config(state="disabled")
+     
+    def confirmacion_eliminar(self,tipo):
+        resp=messagebox.askquestion(title="...¡Atencion!...",message=f"...¿Desea {tipo} este registro?...")
+        if resp=="yes":
+           return True
+        else:
+            return False
         
-    
     # ... Contralador de Coches ...
     def respuesta_sql(self,respuesta):
             if respuesta:
@@ -141,7 +163,11 @@ class App:
     
     def eliminar_controller(self):
         id=self.id.get()
-        respuesta=coches.Coches.eliminar(id)
+        resp=self.confirmacion_eliminar("eliminar")
+        if resp==True:
+           respuesta=coches.Coches.eliminar(id)
+        else:
+            respuesta=False   
         self.respuesta_sql(respuesta)
   
     def consultar_controller(self,filas):
@@ -161,7 +187,18 @@ class App:
         respuesta=coche1.actualizar(id)
         self.respuesta_sql(respuesta)
         del coche1        
-    
+   
+    def buscar_controller(self):
+        id=self.id.get()
+        coche1=coches.Coches.buscar(id)
+        if len(coche1)>0: 
+            messagebox.showinfo(title="...¡ Registro Encontrado !...",message=f"...¡El registro fue encontrado con exito, puedes eliminarlo!...")
+            self.cambiar_estado_eliminar(True) 
+        else:
+            messagebox.showerror(title="...¡ Verifica por favor !...",message="...¡El registro no fue encontrado, no es posible eliminar!...")
+            self.cambiar_estado_eliminar(False)
+            
+
 if __name__=="__main__":
     ventana=Tk()
     app=App(ventana)
